@@ -1,0 +1,108 @@
+plugins {
+	id 'jacoco'
+	id 'com.github.kt3k.coveralls' version '2.6.3'
+	id 'nebula.javadoc-jar' version '4.4.4'
+	id 'nebula.source-jar' version '4.4.4'
+	id 'groovy'
+	id 'maven-publish'
+	id "com.gradle.plugin-publish" version "0.9.5"
+	id 'com.jfrog.bintray' version '1.7'
+}
+
+group = 'com.lazan'
+version = '0.1-SNAPSHOT'
+
+repositories {
+	mavenCentral()
+}
+
+configurations {
+	jacocoRuntime
+}
+
+dependencies {
+	compile localGroovy()
+	compile gradleApi()
+	testCompile 'junit:junit:4.12'
+	testCompile 'org.mockito:mockito-all:1.10.19'
+	testCompile gradleTestKit()
+	testCompile('org.spockframework:spock-core:1.0-groovy-2.4') {
+        exclude module: 'groovy-all'
+    }
+	testRuntime files("$buildDir/testkit")
+	jacocoRuntime "org.jacoco:org.jacoco.agent:${jacoco.toolVersion}:runtime"
+}
+
+jacocoTestReport {
+	reports {
+		xml.enabled = true
+		html.enabled = true
+	}
+}
+
+test {
+	testLogging {
+		exceptionFormat = 'full'
+	}
+	beforeTest { TestDescriptor descriptor ->
+		logger.lifecycle("Running test: $descriptor")
+	}
+	dependsOn 'createTestkitFiles'
+}
+
+task createTestkitFiles {
+	def outputDir = file("$buildDir/testkit")
+
+	inputs.files sourceSets.main.runtimeClasspath
+	inputs.files configurations.jacocoRuntime
+	outputs.dir outputDir
+
+	doLast {
+		outputDir.mkdirs()
+		String jacocoPath = configurations.jacocoRuntime.asPath.replace('\\', '/')
+		file("$outputDir/testkit-classpath.txt").text = sourceSets.main.runtimeClasspath.join("\n")
+		file("$outputDir/testkit-gradle.properties").text = "org.gradle.jvmargs=-javaagent:${jacocoPath}=destfile=$buildDir/jacoco/test.exec"
+	}
+}
+
+pluginBundle {
+	website = 'https://github.com/uklance/gradle-maven-share'
+	vcsUrl = 'https://github.com/uklance/gradle-maven-share.git'
+	description = 'Android style flavours in a java project'
+	tags = ['flavor', 'flavour', 'flavors', 'flavours', 'java']
+
+	plugins {
+		javaFlavours {
+			id = 'com.lazan.javaflavours'
+			displayName = 'Java Flavours Plugin'
+		}
+	}
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+        }
+    }
+}
+
+bintray {
+	user = project.properties['bintrayUser']
+	key = project.properties['bintrayKey']
+	publications = ['maven', 'nebula']
+	publish = true
+	pkg {
+		repo = 'maven'
+		name = project.name
+		licenses = ['Apache-2.0']
+		vcsUrl = 'https://github.com/uklance/gradle-maven-share.git'
+		githubRepo = 'uklance/java-flavours'
+		labels = ['flavor', 'flavour', 'flavors', 'flavours', 'java', 'gradle', 'plugin']
+		version {
+			name = project.version
+			released = new Date()
+			desc = "Gradle Java Flavours Plugin ${project.version}"
+		}
+	}
+}
