@@ -17,14 +17,14 @@ class JavaFlavoursPlugin implements Plugin<Project> {
 					SourceSet sourceSet = sourceSets.create(flavour)
 					sourceSet.compileClasspath += sourceSets.main.output
 					sourceSet.runtimeClasspath += sourceSets.main.output
-					sourceSet.java.srcDir "src/$flavour/java"
-					sourceSet.resources.srcDir "src/$flavour/resources"
+					sourceSet.java.srcDir model.javaPathResolver.getPath(flavour)
+					sourceSet.resources.srcDir model.resourcesPathResolver.getPath(flavour)
 
 					SourceSet testSourceSet = sourceSets.create("${flavour}Test")
 					testSourceSet.compileClasspath += (sourceSets.main.output + sourceSets.test.output + sourceSet.output)
 					testSourceSet.runtimeClasspath += (sourceSets.main.output + sourceSets.test.output + sourceSet.output)
-					testSourceSet.java.srcDir "src/${flavour}Test/java"
-					testSourceSet.resources.srcDir "src/${flavour}Test/resources"
+					testSourceSet.java.srcDir model.testJavaPathResolver.getPath(flavour)
+					testSourceSet.resources.srcDir model.testResourcesPathResolver.getPath(flavour)
 
 					['compile', 'compileOnly', 'compileClasspath', 'runtime'].each { String suffix ->
 
@@ -64,7 +64,11 @@ class JavaFlavoursPlugin implements Plugin<Project> {
 
 	static class JavaFlavoursExtension {
 		List<String> flavours = []
-
+		FlavourPathResolver javaPathResolver = { String flavour -> "src/$flavour/java" }
+		FlavourPathResolver resourcesPathResolver = { String flavour -> "src/$flavour/resources" }
+		FlavourPathResolver testJavaPathResolver = { String flavour -> "src/${flavour}Test/java" }
+		FlavourPathResolver testResourcesPathResolver = { String flavour -> "src/${flavour}Test/resources" }
+		
 		void flavour(String flavour) {
 			flavours << flavour
 		}
