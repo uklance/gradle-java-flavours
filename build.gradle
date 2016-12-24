@@ -45,7 +45,7 @@ test {
 		exceptionFormat = 'full'
 	}
 	beforeTest { TestDescriptor descriptor ->
-		logger.lifecycle("Running test: $descriptor")
+		logger.lifecycle("Running test: $descriptor.name")
 	}
 	dependsOn 'createTestkitFiles'
 }

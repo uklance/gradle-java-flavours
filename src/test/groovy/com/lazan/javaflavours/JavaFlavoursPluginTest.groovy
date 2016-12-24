@@ -1,11 +1,15 @@
 package com.lazan.javaflavours
 
+import java.util.zip.ZipEntry
+import java.util.zip.ZipInputStream
+
 import org.gradle.api.Project;
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome;
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
+import static org.junit.Assert.*
 
 import spock.lang.Specification
 
@@ -38,14 +42,29 @@ class JavaFlavoursPluginTest extends Specification {
 		file.text = text
 	}
 	
-	def "xxx"() {
+	void assertZipEntries(String zipPath, List<String> expectedEntries) {
+		File zipFile = new File(testProjectDir.root, zipPath)
+		ZipInputStream zipIn = new ZipInputStream(new FileInputStream(zipFile))
+		Set<String> actualEntries = [] as Set
+		ZipEntry entry
+		while ((entry = zipIn.getNextEntry()) != null) {
+			if (!entry.isDirectory()) {
+				actualEntries << entry.name
+			}
+		}
+		assertEquals(expectedEntries as Set, actualEntries)
+	}
+	
+	def "Test two flavours compile, test and jar"() {
 		given:
+		writeFile("settings.gradle", "rootProject.name = 'test-project'")
 		writeFile("build.gradle", """
 			buildscript {
 				dependencies {
 					classpath files($classpathString)
 				}
 			}
+			version = '1.0-SNAPSHOT'
 			repositories {
 				mavenCentral()
 			}
@@ -102,9 +121,14 @@ class JavaFlavoursPluginTest extends Specification {
 			.build()
 
 		then:
-		result.task(":check").outcome == TaskOutcome.SUCCESS
+		result.task(":build").outcome == TaskOutcome.SUCCESS
+		
 		result.output.contains('class=foo.MainTest, found=[foo/Main.class, main.txt, foo/MainTest.class, mainTest.txt], notFound=[foo/Red.class, red.txt, foo/RedTest.class, redTest.txt, foo/Blue.class, blue.txt, foo/BlueTest.class, blueTest.txt')
 		result.output.contains('class=foo.RedTest, found=[foo/Main.class, main.txt, foo/MainTest.class, mainTest.txt, foo/Red.class, red.txt, foo/RedTest.class, redTest.txt], notFound=[foo/Blue.class, blue.txt, foo/BlueTest.class, blueTest.txt')
 		result.output.contains('class=foo.BlueTest, found=[foo/Main.class, main.txt, foo/MainTest.class, mainTest.txt, foo/Blue.class, blue.txt, foo/BlueTest.class, blueTest.txt], notFound=[foo/Red.class, red.txt, foo/RedTest.class, redTest.txt]')
+		
+		assertZipEntries("build/libs/test-project-1.0-SNAPSHOT.jar", ['META-INF/MANIFEST.MF', 'foo/Main.class', 'main.txt'])
+		assertZipEntries("build/libs/test-project-1.0-SNAPSHOT-red.jar", ['META-INF/MANIFEST.MF', 'foo/Main.class', 'main.txt', 'foo/Red.class', 'red.txt'])
+		assertZipEntries("build/libs/test-project-1.0-SNAPSHOT-blue.jar", ['META-INF/MANIFEST.MF', 'foo/Main.class', 'main.txt', 'foo/Blue.class', 'blue.txt'])
 	}
 }
