@@ -13,25 +13,25 @@ javaFlavours {
 
 ## Directories:
 
-`src/main/java` - Common java sources
-`src/main/resources` - Common resources
-`src/test/java` - Common tests
-`src/test/resources` - Common test resources
-`src/<flavour>/java` - Flavour specific java sources
-`src/<flavour>/resources` - Flavour specific resources
-`src/<flavour>Test/java` - Flavour specific tests
-`src/<flavour>Test/resources` - Flavour specific test resources
+- `src/main/java` - Common java sources
+- `src/main/resources` - Common resources
+- `src/test/java` - Common tests
+- `src/test/resources` - Common test resources
+- `src/<flavour>/java` - Flavour specific java sources
+- `src/<flavour>/resources` - Flavour specific resources
+- `src/<flavour>Test/java` - Flavour specific tests
+- `src/<flavour>Test/resources` - Flavour specific test resources
 
 ## Configurations:
 
-`<flavour>Compile`
-`<flavour>CompileOnly`
-`<flavour>CompileClasspath`
-`<flavour>Runtime`
+- `<flavour>Compile`
+- `<flavour>CompileOnly`
+- `<flavour>CompileClasspath`
+- `<flavour>Runtime`
 
 ## Test Configurations
 
-`<flavour>TestCompile`
-`<flavour>TestCompileOnly`
-`<flavour>TestCompileClasspath`
-`<flavour>TestRuntime`
+- `<flavour>TestCompile`
+- `<flavour>TestCompileOnly`
+- `<flavour>TestCompileClasspath`
+- `<flavour>TestRuntime`
