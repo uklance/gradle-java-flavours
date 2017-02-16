@@ -8,7 +8,7 @@ plugins {
 }
 
 group = 'com.lazan'
-version = '0.1-SNAPSHOT'
+version = file('version.txt').text.trim()
 
 repositories {
 	mavenCentral()
@@ -88,7 +88,7 @@ publishing {
 bintray {
 	user = project.properties['bintrayUser']
 	key = project.properties['bintrayKey']
-	publications = ['maven', 'nebula']
+	publications = ['maven']
 	publish = true
 	pkg {
 		repo = 'maven'
