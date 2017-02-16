@@ -64,8 +64,8 @@ task createTestkitFiles {
 }
 
 pluginBundle {
-	website = 'https://github.com/uklance/gradle-maven-share'
-	vcsUrl = 'https://github.com/uklance/gradle-maven-share.git'
+	website = 'https://github.com/uklance/gradle-java-flavours'
+	vcsUrl = 'https://github.com/uklance/gradle-java-flavours.git'
 	description = 'Android style flavours in a java project'
 	tags = ['flavor', 'flavour', 'flavors', 'flavours', 'java']
 
@@ -94,7 +94,7 @@ bintray {
 		repo = 'maven'
 		name = project.name
 		licenses = ['Apache-2.0']
-		vcsUrl = 'https://github.com/uklance/gradle-maven-share.git'
+		vcsUrl = 'https://github.com/uklance/gradle-java-flavours.git'
 		githubRepo = 'uklance/java-flavours'
 		labels = ['flavor', 'flavour', 'flavors', 'flavours', 'java', 'gradle', 'plugin']
 		version {
