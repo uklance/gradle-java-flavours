@@ -16,17 +16,8 @@ import spock.lang.Specification
 class JavaFlavoursPluginTest extends Specification {
 
 	@Rule final TemporaryFolder testProjectDir = new TemporaryFolder()
-	String classpathString
 	
 	def setup() {
-		URL classpathUrl = getResourceUrl("testkit-classpath.txt")
-		List<File> classpathFiles = classpathUrl.readLines().collect { new File(it) }
-		
-		classpathString = classpathFiles
-			.collect { it.absolutePath.replace('\\', '/') } // escape backslashes in Windows paths
-			.collect { "'$it'" }
-			.join(", ")
-			
 		writeFile('gradle.properties', getResourceUrl("testkit-gradle.properties").text)
 	}
 
@@ -59,20 +50,17 @@ class JavaFlavoursPluginTest extends Specification {
 		given:
 		writeFile("settings.gradle", "rootProject.name = 'test-project'")
 		writeFile("build.gradle", """
-			buildscript {
-				dependencies {
-					classpath files($classpathString)
-				}
+			plugins {
+				id 'com.lazan.javaflavours'
 			}
 			version = '1.0-SNAPSHOT'
 			repositories {
 				mavenCentral()
 			}
-			apply plugin: 'com.lazan.javaflavours'
 			javaFlavours {
 				flavour 'red'
 				flavour 'blue'
-            }
+			}
 			dependencies {
 				testCompile 'junit:junit:4.12'
 			}
@@ -119,6 +107,7 @@ class JavaFlavoursPluginTest extends Specification {
 		def result = GradleRunner.create()
 			.withProjectDir(testProjectDir.root)
 			.withArguments('build', '--stacktrace')
+			.withPluginClasspath()
 			.build()
 
 		then:
