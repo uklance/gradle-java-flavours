@@ -34,7 +34,7 @@ dependencies {
 
 ## Tasks
 
-- `compile<flavourJava`
+- `compile<flavour>Java`
 - `compile<flavour>TestJava`
 - `<flavour>Classes`
 - `<flavour>Jar`
