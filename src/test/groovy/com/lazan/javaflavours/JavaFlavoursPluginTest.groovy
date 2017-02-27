@@ -9,7 +9,9 @@ import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome;
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
+import java.util.regex.*
 import static org.junit.Assert.*
+
 
 import spock.lang.Specification
 
@@ -44,6 +46,97 @@ class JavaFlavoursPluginTest extends Specification {
 			}
 		}
 		assertEquals(expectedEntries as Set, actualEntries)
+	}
+	
+	def "Test tasks"() {
+		given:
+			writeFile("build.gradle", """
+				plugins {
+					id 'com.lazan.javaflavours'
+				}
+				version = '1.0-SNAPSHOT'
+				repositories {
+					mavenCentral()
+				}
+				javaFlavours {
+					flavour 'one'
+					flavour 'two'
+				}
+				task performAssertions {
+					doLast {
+						Set<String> taskNames = tasks.collect { it.name } as Set
+						def expected = [
+							'compileOneJava', 'compileOneTestJava', 'oneClasses', 'oneJar', 'oneTest', 'oneTestClasses', 'processOneResources', 'processOneTestResources', 
+							'compileTwoJava', 'compileTwoTestJava', 'twoClasses', 'twoJar', 'twoTest', 'twoTestClasses', 'processTwoResources', 'processTwoTestResources'
+						]
+						expected.each { taskName ->
+							assert taskNames.contains(taskName)
+						}
+					}
+				}
+			""")
+		when:
+			def result = GradleRunner.create()
+				.withProjectDir(testProjectDir.root)
+				.withArguments('performAssertions', '--stacktrace')
+				.withPluginClasspath()
+				.build()
+		then:
+			result.task(":performAssertions").outcome == TaskOutcome.SUCCESS
+	}
+	
+	def "Test configurations"() {
+		given:
+			writeFile("build.gradle", """
+				plugins {
+					id 'com.lazan.javaflavours'
+				}
+				version = '1.0-SNAPSHOT'
+				repositories {
+					mavenCentral()
+				}
+				javaFlavours {
+					flavour 'one'
+					flavour 'two'
+				}
+				dependencies {
+					compile 'org.springframework:spring-context:4.3.2.RELEASE'
+					testCompile 'junit:junit:4.12'
+					oneCompile 'org.hibernate:hibernate-core:5.2.8.Final'
+					oneTestCompile 'org.mockito:mockito-core:2.7.12'
+				}
+				task performAssertions {
+					doLast {
+						Set<String> oneRuntime = configurations.oneRuntime.files.collect({ it.name }) as Set
+						Set<String> oneTestRuntime = configurations.oneTestRuntime.files.collect({ it.name }) as Set
+						Set<String> twoRuntime = configurations.twoRuntime.files.collect({ it.name }) as Set
+						Set<String> twoTestRuntime = configurations.twoTestRuntime.files.collect({ it.name }) as Set
+
+						assert oneRuntime.contains('spring-context-4.3.2.RELEASE.jar')
+						assert oneRuntime.contains('hibernate-core-5.2.8.Final.jar')
+						assert oneTestRuntime.contains('spring-context-4.3.2.RELEASE.jar')
+						assert oneTestRuntime.contains('hibernate-core-5.2.8.Final.jar')
+						assert oneTestRuntime.contains('junit-4.12.jar')
+						assert oneTestRuntime.contains('mockito-core-2.7.12.jar')
+			
+						assert twoRuntime.contains('spring-context-4.3.2.RELEASE.jar')
+						assert !twoRuntime.contains('hibernate-core-5.2.8.Final.jar')
+						assert twoTestRuntime.contains('spring-context-4.3.2.RELEASE.jar')
+						assert !twoTestRuntime.contains('hibernate-core-5.2.8.Final.jar')
+						assert twoTestRuntime.contains('junit-4.12.jar')
+						assert !twoTestRuntime.contains('mockito-core-2.7.12.jar')
+					}
+				}
+			""")
+		when:
+			def result = GradleRunner.create()
+				.withProjectDir(testProjectDir.root)
+				.withArguments('performAssertions', '--stacktrace')
+				.withPluginClasspath()
+				.build()
+
+		then:
+			result.task(":performAssertions").outcome == TaskOutcome.SUCCESS
 	}
 	
 	def "Test two flavours compile, test and jar"() {
