@@ -13,6 +13,12 @@ javaFlavours {
     testJavaPathResolver = { String flavour -> "src/${flavour}-test/java" }
     testResourcesPathResolver = { String flavour -> "src/${flavour}-test/resources" }
 }
+dependencies {
+    compile         'aaa:aaa:1.0'
+    freeCompile     'bbb:bbb:2.0'
+    freeTestCompile 'ccc:ccc:3.0'
+    paidRuntime     'ddd:ddd:4.0'
+}
 ```
 
 ## Directories:
