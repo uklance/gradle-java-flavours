@@ -7,7 +7,11 @@ A Gradle plugin to add Android style flavours to a Java project
 ```groovy
 apply plugin: 'com.lazan.javaflavours'
 javaFlavours {
-	flavours = ['free', 'paid']
+    flavour 'free'
+    flavour 'paid'
+    
+    testJavaPathResolver = { String flavour -> "src/${flavour}-test/java" }
+    testResourcesPathResolver = { String flavour -> "src/${flavour}-test/resources" }
 }
 ```
 
@@ -17,10 +21,21 @@ javaFlavours {
 - `src/main/resources` - Common resources
 - `src/test/java` - Common tests
 - `src/test/resources` - Common test resources
-- `src/<flavour>/java` - Flavour specific java sources
-- `src/<flavour>/resources` - Flavour specific resources
-- `src/<flavour>Test/java` - Flavour specific tests
-- `src/<flavour>Test/resources` - Flavour specific test resources
+- `src/<flavour>/java` - Flavour specific java sources (can be configured)
+- `src/<flavour>/resources` - Flavour specific resources (can be configured)
+- `src/<flavour>Test/java` - Flavour specific tests (can be configured)
+- `src/<flavour>Test/resources` - Flavour specific test resources (can be configured)
+
+## Tasks
+
+- `compile<flavourJava`
+- `compile<flavour>TestJava`
+- `<flavour>Classes`
+- `<flavour>Jar`
+- `<flavour>Test`
+- `<flavour>TestClasses`
+- `process<flavour>Resources`
+- `process<flavour>TestResources`
 
 ## Configurations:
 
@@ -28,9 +43,6 @@ javaFlavours {
 - `<flavour>CompileOnly`
 - `<flavour>CompileClasspath`
 - `<flavour>Runtime`
-
-## Test Configurations
-
 - `<flavour>TestCompile`
 - `<flavour>TestCompileOnly`
 - `<flavour>TestCompileClasspath`
