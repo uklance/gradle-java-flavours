@@ -5,7 +5,9 @@ A Gradle plugin to add Android style flavours to a Java project
 ## Usage:
 
 ```groovy
-apply plugin: 'com.lazan.javaflavours'
+plugins {
+  id "com.lazan.javaflavours" version "1.2"
+}
 javaFlavours {
     flavour 'free'
     flavour 'paid'
@@ -20,6 +22,8 @@ dependencies {
     paidRuntime     'ddd:ddd:4.0'
 }
 ```
+
+You find detailed installation instructions at https://plugins.gradle.org/plugin/com.lazan.javaflavours.
 
 ## Directories:
 
