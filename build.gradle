@@ -3,7 +3,7 @@ plugins {
 	id 'com.github.kt3k.coveralls' version '2.6.3'
 	id 'groovy'
 	id 'maven-publish'
-	id "com.gradle.plugin-publish" version "0.9.5"
+	id "com.gradle.plugin-publish" version '0.9.7'
 	id 'com.jfrog.bintray' version '1.7'
 	id 'java-gradle-plugin'
 }
